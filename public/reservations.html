@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reservations</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <main class="container">
+    <header class="header">
+      <h1>Reservations</h1>
+      <p class="sub">Book a table and view your reservations.</p>
+      <nav class="miniNav">
+        <a class="miniLink" href="/">Home</a>
+        <a class="miniLink" href="/auth.html">Account</a>
+        <a class="miniLink active" href="/reservations.html">Reservations</a>
+      </nav>
+    </header>
+
+    <section class="grid">
+      <section class="card">
+        <h2>Book a table</h2>
+
+        <form id="bookForm" class="form" novalidate>
+          <label>
+            <span>Date & time</span>
+            <input id="dateTime" type="datetime-local" />
+          </label>
+
+          <label>
+            <span>Guests</span>
+            <input id="guests" type="number" min="1" max="20" value="2" required />
+          </label>
+
+          <label>
+            <span>Notes (optional)</span>
+            <textarea id="notes" rows="4" placeholder="Any preferences?"></textarea>
+          </label>
+
+          <button class="btn" type="submit">Book</button>
+        </form>
+
+        <p class="hint">
+          If booking fails, open <b>Account</b> and sign in.
+        </p>
+      </section>
+
+      <section class="card">
+        <div class="row space">
+          <h2>My reservations</h2>
+          <button id="loadBtn" class="btn ghost" type="button">Refresh</button>
+        </div>
+
+        <div id="list" class="listEmpty">No data yet.</div>
+      </section>
+    </section>
+
+    <div id="resMsg" class="toast">Ready.</div>
+  </main>
+
+  <script src="/js/client.js"></script>
+  <script src="/js/reservations.js"></script>
+</body>
+</html>

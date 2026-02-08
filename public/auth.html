@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Account</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <main class="container">
+    <header class="header">
+      <h1>Account</h1>
+      <p class="sub">Register or sign in to manage reservations.</p>
+      <nav class="miniNav">
+        <a class="miniLink" href="/">Home</a>
+        <a class="miniLink active" href="/auth.html">Account</a>
+        <a class="miniLink" href="/reservations.html">Reservations</a>
+      </nav>
+    </header>
+
+    <section class="grid">
+      <section class="card">
+        <h2>Create account</h2>
+
+       
+        <form id="registerForm" class="form" novalidate>
+          <label>
+            <span>Full name</span>
+            <input id="regName" type="text" placeholder="Your name"  />
+          </label>
+
+          <label>
+            <span>Email</span>
+            <input id="regEmail" type="email" placeholder="name@mail.com" />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input id="regPassword" type="password" placeholder="Min 6 characters"/>
+          </label>
+
+          <button class="btn" type="submit">Register</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Sign in</h2>
+
+        <form id="loginForm" class="form" novalidate>
+          <label>
+            <span>Email</span>
+            <input id="loginEmail" type="email" placeholder="name@mail.com" />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input id="loginPassword" type="password" placeholder="Your password" />
+          </label>
+
+          <div class="row">
+            <button class="btn" type="submit">Sign in</button>
+            <a class="btn ghost" href="/reservations.html">Go to reservations</a>
+          </div>
+        </form>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <button id="loadProfileBtn" class="btn ghost" type="button">Load profile</button>
+          <button id="logoutBtn" class="btn danger" type="button">Log out</button>
+        </div>
+
+        <pre id="profileOut" class="pre"></pre>
+      </section>
+    </section>
+
+    <div id="authMsg" class="toast">Ready.</div>
+  </main>
+
+  <script src="/js/client.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

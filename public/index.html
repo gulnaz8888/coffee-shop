@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aurora Coffee Store</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="wrap topbarInner">
+      <div class="topLeft">
+        <span>+7 (777) 777-77-77</span>
+        <span class="sep">|</span>
+        <span>Mon–Sun: 09:00–22:00</span>
+        <span class="sep">|</span>
+        <span id="weatherInfo">Loading weather...</span>
+      </div>
+      <div class="topRight">
+        <span>Instagram: @aurora.coffee</span>
+      </div>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="wrap headerInner">
+      <a class="brand" href="/">
+        <div class="logo"></div>
+        <div>
+          <div class="brandName">Aurora Coffee</div>
+          <div class="brandSub">Coffee • Tea • Desserts</div>
+        </div>
+      </a>
+
+      <nav class="nav">
+        <a href="/" class="navLink active">Home</a>
+        <a href="#catalog" class="navLink">Catalog</a>
+        <a href="#about" class="navLink">About</a>
+        <a href="#contacts" class="navLink">Contacts</a>
+      </nav>
+
+      <div class="headerActions">
+        <a class="btnOutline" href="/auth.html">Account</a>
+        <a class="btnPrimary" href="/reservations.html">Reservations</a>
+      </div>
+    </div>
+
+    <div class="wrap headerBottom">
+      <button class="catBtn" type="button">☰ Product catalog</button>
+      <button class="catBtn light" type="button">☰ Coffee machines</button>
+
+      <div class="search">
+        <input id="q" type="text" placeholder="Search products..." />
+        <button id="searchBtn" class="searchBtn" type="button">🔍</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="heroMedia">
+        <img class="heroImg" src="/assets/hero.jpg" alt="Coffee shop banner"
+             onerror="this.style.display='none'; document.getElementById('heroFallback').style.display='flex';" />
+        <div id="heroFallback" class="heroFallback" style="display:none;">
+          <div>
+            <div class="fallbackTitle">Welcome to Aurora Coffee</div>
+            <div class="fallbackText">Premium coffee & tea since 2024</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="heroText">
+        <div class="weatherBox">
+          <div class="weatherTitle">Today in Astana</div>
+
+          <div id="wTemp" class="weatherTemp">--°C</div>
+
+          <div class="weatherMeta">
+            <div id="wWind" class="weatherPill">Wind: -- km/h</div>
+            <div class="weatherPill">Hot drink time</div>
+          </div>
+
+          <p class="weatherTip">Its cold today. Lets grab a hot drink.</p>
+
+          <div class="heroBtns">
+            <a href="#catalog" class="heroBtn">View catalog</a>
+            <a href="/reservations.html" class="heroBtn">Book a table</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="catalog" class="block">
+      <div class="blockHead">
+        <h2>Categories</h2>
+      </div>
+
+      <div class="cats">
+        <a class="catCard" href="#products">
+          <div class="catImg ph cocoa"></div>
+          <div class="catTitle">Cocoa</div>
+        </a>
+        <a class="catCard" href="#products">
+          <div class="catImg ph caps"></div>
+          <div class="catTitle">Capsules</div>
+        </a>
+        <a class="catCard" href="#products">
+          <div class="catImg ph beans"></div>
+          <div class="catTitle">Coffee beans</div>
+        </a>
+        <a class="catCard" href="#products">
+          <div class="catImg ph prof"></div>
+          <div class="catTitle">Professional</div>
+        </a>
+        <a class="catCard" href="#products">
+          <div class="catImg ph inst"></div>
+          <div class="catTitle">Instant coffee</div>
+        </a>
+        <a class="catCard" href="#products">
+          <div class="catImg ph ground"></div>
+          <div class="catTitle">Ground coffee</div>
+        </a>
+        <a class="catCard" href="#products">
+          <div class="catImg ph tea"></div>
+          <div class="catTitle">Tea</div>
+        </a>
+      </div>
+    </section>
+
+    <section id="products" class="block">
+      <div class="blockHead row">
+        <h2>Best sellers</h2>
+        <div class="tabs">
+          <button class="tab active" type="button">Best</button>
+          <button class="tab" type="button">New</button>
+        </div>
+      </div>
+
+      <div class="products" id="productsGrid">
+        <div class="pCard" data-name="Jacobs Monarch Beans">
+          <div class="pImg ph p1"></div>
+          <div class="pBody">
+            <div class="pName">Jacobs Monarch Beans</div>
+            <div class="pPrice">2 538 ₸</div>
+            <a class="pBtn" href="/reservations.html">Order</a>
+          </div>
+        </div>
+
+        <div class="pCard" data-name="L'or Capsules 10 pcs">
+          <div class="pImg ph p2"></div>
+          <div class="pBody">
+            <div class="pName">L'or Capsules, 10 pcs</div>
+            <div class="pPrice">2 363 ₸</div>
+            <a class="pBtn" href="/reservations.html">Order</a>
+          </div>
+        </div>
+
+        <div class="pCard" data-name="Delizioso Capsules 10 pcs">
+          <div class="pImg ph p3"></div>
+          <div class="pBody">
+            <div class="pName">Delizioso Capsules, 10 pcs</div>
+            <div class="pPrice">2 363 ₸</div>
+            <a class="pBtn" href="/reservations.html">Order</a>
+          </div>
+        </div>
+
+        <div class="pCard" data-name="L'or Espresso Forza">
+          <div class="pImg ph p4"></div>
+          <div class="pBody">
+            <div class="pName">L'or Espresso Forza</div>
+            <div class="pPrice">2 363 ₸</div>
+            <a class="pBtn" href="/reservations.html">Order</a>
+          </div>
+        </div>
+
+        <div class="pCard" data-name="L'or Espresso Hazelnut">
+          <div class="pImg ph p5"></div>
+          <div class="pBody">
+            <div class="pName">L'or Espresso Hazelnut</div>
+            <div class="pPrice">2 538 ₸</div>
+            <a class="pBtn" href="/reservations.html">Order</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="block">
+      <div class="blockHead">
+        <h2>About</h2>
+      </div>
+      <div class="simpleBox">
+        Aurora Coffee is a demo coffee shop website for a final project.
+        It includes accounts and private reservations (required by the rubric).
+      </div>
+    </section>
+
+    <section id="contacts" class="block">
+      <div class="blockHead">
+        <h2>Contacts</h2>
+      </div>
+      <div class="contactRow">
+        <div class="contactItem">Phone: <b>+7 (777) 777-77-77</b></div>
+        <div class="contactItem">Email: <b>info@auroracoffee.kz</b></div>
+        <div class="contactItem">Address: <b>Astana, Mangilik El 12</b></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footerInner">
+      <div class="footerBrand">
+        <div class="logo"></div>
+        <div>
+          <div class="brandName">Aurora Coffee</div>
+          <div class="brandSub">Coffee • Tea • Desserts</div>
+        </div>
+      </div>
+
+      <div class="footerCol">
+        <div class="fHead">Product catalog</div>
+        <a class="fLink" href="#catalog">Cocoa</a>
+        <a class="fLink" href="#catalog">Capsules</a>
+        <a class="fLink" href="#catalog">Coffee beans</a>
+        <a class="fLink" href="#catalog">Instant coffee</a>
+      </div>
+
+      <div class="footerCol">
+        <div class="fHead">Company</div>
+        <a class="fLink" href="#about">About</a>
+        <a class="fLink" href="#contacts">Contacts</a>
+        <a class="fLink" href="/auth.html">Account</a>
+        <a class="fLink" href="/reservations.html">Reservations</a>
+      </div>
+
+      <div class="footerCol">
+        <div class="fHead">Contacts</div>
+        <div class="fText">+7 (777) 777-77-77</div>
+        <div class="fText">info@auroracoffee.kz</div>
+        <div class="fText">Astana, Mangilik el 12</div>
+      </div>
+    </div>
+
+    <div class="wrap footerBottom">
+      <div>© 2026 Aurora Coffee</div>
+      <div>All rights reserved</div>
+    </div>
+  </footer>
+
+  <script src="/js/client.js"></script>
+
+  <script>
+    const q = document.getElementById("q");
+    const btn = document.getElementById("searchBtn");
+    const cards = () => Array.from(document.querySelectorAll(".pCard"));
+
+    function runSearch() {
+      const term = (q.value || "").toLowerCase().trim();
+      cards().forEach(c => {
+        const name = (c.dataset.name || "").toLowerCase();
+        c.style.display = name.includes(term) ? "" : "none";
+      });
+    }
+    btn.addEventListener("click", runSearch);
+    q.addEventListener("input", runSearch);
+
+    async function loadWeather() {
+      try {
+        const weather = await window.externalWidgets?.loadWeatherAstana?.();
+        if (!weather) return;
+
+        const tempEl = document.getElementById("wTemp");
+        const windEl = document.getElementById("wWind");
+        const topEl = document.getElementById("weatherInfo");
+
+        if (tempEl && typeof weather.temp === "number") tempEl.textContent = `${weather.temp}°C`;
+        if (windEl && typeof weather.wind === "number") windEl.textContent = `Wind: ${weather.wind} km/h`;
+
+        if (topEl && typeof weather.temp === "number") {
+          topEl.textContent = `Astana: ${weather.temp}°C, Wind: ${weather.wind} km/h`;
+        }
+      } catch {
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      loadWeather();
+
+      setTimeout(() => {
+        if (window.externalWidgets?.paintHomePhotos) {
+          window.externalWidgets.paintHomePhotos();
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>
