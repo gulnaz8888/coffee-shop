@@ -1,0 +1,96 @@
+services:
+
+  mongo:
+    image: mongo:6
+    container_name: coffee_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: coffee_auth
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/coffeeshop
+      JWT_SECRET: your_super_secret_key
+    depends_on:
+      - mongo
+
+  reservation-service:
+    build:
+      context: ./services/reservation-service
+      dockerfile: Dockerfile
+    container_name: coffee_reservation
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/coffeeshop
+      JWT_SECRET: your_super_secret_key
+    depends_on:
+      - mongo
+
+  external-service:
+    build:
+      context: ./services/external-service
+      dockerfile: Dockerfile
+    container_name: coffee_external
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      UNSPLASH_ACCESS_KEY: KCsguid_snbauEydTtNCTxyAlcXdfwPCDt4tyOg2E14
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: coffee_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - reservation-service
+      - external-service
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: coffee_prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: coffee_grafana
+    restart: always
+    ports:
+      - "4000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: coffee_node_exporter
+    restart: always
+    ports:
+      - "9100:9100"
+
+volumes:
+  mongo_data:
+  grafana_data:

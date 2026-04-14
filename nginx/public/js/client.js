@@ -95,26 +95,27 @@
 
  
   async function paintHomePhotos() {
-   
-    const targets = Array.from(document.querySelectorAll(".ph"));
-    if (!targets.length) return;
+  const targets = Array.from(document.querySelectorAll(".ph"));
+  if (!targets.length) return;
 
-    try {
-      const photos = await loadUnsplashRandom("coffee shop", Math.max(6, targets.length));
-      if (!photos.length) return;
+  try {
+    const res = await fetch(`/api/unsplash/random?query=coffee&count=${Math.max(6, targets.length)}`);
+    const data = await res.json();
+    const photos = Array.isArray(data) ? data : (data?.photos || data?.results || []);
+    if (!photos.length) return;
 
-      targets.forEach((el, i) => {
-        const p = photos[i % photos.length];
-        const url = p?.urls?.small || p?.urls?.regular;
-        if (!url) return;
-        
-        el.style.backgroundImage = `url("${url}")`;
-        el.style.backgroundSize = "cover";
-        el.style.backgroundPosition = "center";
-      });
-    } catch {
-    }
+    targets.forEach((el, i) => {
+      const p = photos[i % photos.length];
+      const url = p?.urls?.small || p?.urls?.regular;
+      if (!url) return;
+      el.style.backgroundImage = `url("${url}")`;
+      el.style.backgroundSize = "cover";
+      el.style.backgroundPosition = "center";
+    });
+  } catch (e) {
+    console.error('paintHomePhotos error:', e);
   }
+}
 
   window.api = api;
   window.apiAuth = apiAuth;

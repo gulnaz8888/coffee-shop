@@ -1,0 +1,21 @@
+groups:
+  - name: coffee_shop_alerts
+    rules:
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 1%"
+
+      - alert: ServiceDown
+        expr: up{job="backend"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend service is DOWN"
+          description: "Coffee shop backend is not responding"

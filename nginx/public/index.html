@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aurora Coffee</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="wrap topbarInner">
+      <div class="topLeft">
+        <span>+7 (777) 777-77-77</span>
+        <span class="sep">|</span>
+        <span>Mon–Sun: 09:00–22:00</span>
+        <span class="sep">|</span>
+        <span id="weatherInfo">Loading weather...</span>
+      </div>
+      <div class="topRight">
+        <span>Instagram: @aurora.coffee</span>
+      </div>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="wrap headerInner">
+      <a class="brand" href="/">
+        <div class="logo">☕</div>
+        <div>
+          <div class="brandName">Aurora Coffee</div>
+          <div class="brandSub">Coffee • Tea • Desserts</div>
+        </div>
+      </a>
+      <nav class="nav">
+        <a href="/" class="navLink active">Home</a>
+        <a href="#catalog" class="navLink">Catalog</a>
+        <a href="#about" class="navLink">About</a>
+        <a href="#contacts" class="navLink">Contacts</a>
+      </nav>
+      <div class="headerActions">
+        <a class="btnOutline" href="/auth.html">Account</a>
+        <a class="btnPrimary" href="/reservations.html">Reservations</a>
+      </div>
+    </div>
+    <div class="wrap headerBottom">
+      <button class="catBtn" type="button">☰ Product catalog</button>
+      <button class="catBtn" type="button">☰ Coffee machines</button>
+      <div class="search">
+        <input id="q" type="text" placeholder="Search products..." />
+        <button id="searchBtn" class="searchBtn" type="button">🔍</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="heroMedia">
+        <img src="/assets/hero.jpg" alt="Aurora Coffee"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
+        <div class="ph" style="display:none;height:100%;width:100%;"></div>
+      </div>
+      <div class="heroText">
+        <div class="weatherBox">
+          <div class="weatherTitle">Today in Astana</div>
+          <div id="wTemp" class="weatherTemp">--°C</div>
+          <div class="weatherMeta">
+            <div id="wWind" class="weatherPill">Wind: -- km/h</div>
+            <div class="weatherPill">☕ Hot drink time</div>
+          </div>
+          <p id="heroWeatherHint" class="weatherTip">Checking the weather for you...</p>
+          <div class="heroBtns">
+            <a href="#catalog" class="heroBtn">View catalog</a>
+            <a href="/reservations.html" class="heroBtn">Book a table</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section id="catalog" class="block">
+      <div class="blockHead"><h2>Categories</h2></div>
+      <div class="cats">
+        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Cocoa</div></a>
+        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Capsules</div></a>
+        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Beans</div></a>
+        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Professional</div></a>
+        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Instant</div></a>
+        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Tea</div></a>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="products" class="block">
+      <div class="blockHead row">
+        <h2>Best sellers</h2>
+        <div class="tabs">
+          <button class="tab active" type="button">Best</button>
+          <button class="tab" type="button">New</button>
+        </div>
+      </div>
+      <div class="products" id="productsGrid">
+        <div class="pCard" data-name="Jacobs Monarch Beans">
+          <div class="pImg ph"></div>
+          <div class="pBody">
+            <div class="pName">Jacobs Monarch Beans</div>
+            <div class="pPrice">2 538 ₸</div>
+            <button class="pBtn">Order</button>
+          </div>
+        </div>
+        <div class="pCard" data-name="L'or Capsules 10 pcs">
+          <div class="pImg ph"></div>
+          <div class="pBody">
+            <div class="pName">L'or Capsules, 10 pcs</div>
+            <div class="pPrice">2 363 ₸</div>
+            <button class="pBtn">Order</button>
+          </div>
+        </div>
+        <div class="pCard" data-name="Delizioso Capsules 10 pcs">
+          <div class="pImg ph"></div>
+          <div class="pBody">
+            <div class="pName">Delizioso Capsules, 10 pcs</div>
+            <div class="pPrice">2 363 ₸</div>
+            <button class="pBtn">Order</button>
+          </div>
+        </div>
+        <div class="pCard" data-name="L'or Espresso Forza">
+          <div class="pImg ph"></div>
+          <div class="pBody">
+            <div class="pName">L'or Espresso Forza</div>
+            <div class="pPrice">2 363 ₸</div>
+            <button class="pBtn">Order</button>
+          </div>
+        </div>
+        <div class="pCard" data-name="L'or Espresso Hazelnut">
+          <div class="pImg ph"></div>
+          <div class="pBody">
+            <div class="pName">L'or Espresso Hazelnut</div>
+            <div class="pPrice">2 538 ₸</div>
+            <button class="pBtn">Order</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="reviews" class="block">
+      <div class="blockHead row">
+        <h2>Customer Reviews</h2>
+        <div class="pill">4.9 ★ Average Rating</div>
+      </div>
+      <div class="reviewsGrid">
+        <div class="reviewCard">
+          <div class="reviewTop">
+            <div class="userAvatar" style="background-image:url('https://i.pravatar.cc/150?u=11')"></div>
+            <div><div class="userName">Arman I.</div><div class="userMeta">2 days ago</div></div>
+            <div class="userRating">★★★★★</div>
+          </div>
+          <p class="reviewText">The best flat white in Astana! The beans are always fresh and the atmosphere is perfect.</p>
+        </div>
+        <div class="reviewCard">
+          <div class="reviewTop">
+            <div class="userAvatar" style="background-image:url('https://i.pravatar.cc/150?u=22')"></div>
+            <div><div class="userName">Elena M.</div><div class="userMeta">1 week ago</div></div>
+            <div class="userRating">★★★★★</div>
+          </div>
+          <p class="reviewText">Love Aurora! The reservation system is very convenient. My go-to coffee spot.</p>
+        </div>
+        <div class="reviewCard">
+          <div class="reviewTop">
+            <div class="userAvatar" style="background-image:url('https://i.pravatar.cc/150?u=33')"></div>
+            <div><div class="userName">Dias K.</div><div class="userMeta">3 days ago</div></div>
+            <div class="userRating">★★★★★</div>
+          </div>
+          <p class="reviewText">Amazing selection of beans. Ordered online and it arrived perfectly packed.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="block">
+      <div class="aboutContainer">
+        <div class="aboutText">
+          <h2>Our Story</h2>
+          <p>Aurora Coffee was born from a love of great coffee and technology. We combine premium roasting with advanced reliability engineering — because your morning coffee should never fail. Every cup is monitored, every bean is chosen with care.</p>
+        </div>
+        <div class="aboutStats">
+          <div class="statCard"><div class="statNum">99.9%</div><div class="statLabel">Uptime</div></div>
+          <div class="statCard"><div class="statNum">15+</div><div class="statLabel">Blends</div></div>
+          <div class="statCard"><div class="statNum">2k+</div><div class="statLabel">Customers</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACTS -->
+    <section id="contacts" class="block">
+      <div class="blockHead"><h2>Contacts</h2></div>
+      <div class="contactRow">
+        <div class="contactItem">Phone <b>+7 (777) 777-77-77</b></div>
+        <div class="contactItem">Email <b>info@auroracoffee.kz</b></div>
+        <div class="contactItem">Address <b>Astana, Mangilik El 12</b></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footerBottom">
+      <div>© 2026 Aurora Coffee</div>
+      <div>All rights reserved</div>
+    </div>
+  </footer>
+
+  <script src="/js/client.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const qInput = document.getElementById("q");
+      const sBtn   = document.getElementById("searchBtn");
+      function runSearch() {
+        const term = (qInput.value || "").toLowerCase().trim();
+        document.querySelectorAll(".pCard").forEach(c => {
+          c.style.display = (c.dataset.name || "").toLowerCase().includes(term) ? "" : "none";
+        });
+      }
+      if (sBtn)   sBtn.addEventListener("click", runSearch);
+      if (qInput) qInput.addEventListener("input", runSearch);
+
+      if (window.externalWidgets) {
+        window.externalWidgets.loadWeatherAstana?.().then(w => {
+          if (!w) return;
+          const tempEl = document.getElementById("wTemp");
+          const windEl = document.getElementById("wWind");
+          const topEl  = document.getElementById("weatherInfo");
+          const hintEl = document.getElementById("heroWeatherHint");
+          if (tempEl) tempEl.textContent = `${w.temp}°C`;
+          if (windEl) windEl.textContent = `Wind: ${w.wind} km/h`;
+          if (topEl)  topEl.textContent  = `Astana: ${w.temp}°C, Wind: ${w.wind} km/h`;
+          if (hintEl) {
+            const t = w.temp;
+            hintEl.textContent = t <= 0
+              ? "It's freezing! Perfect excuse for a hot latte."
+              : t <= 10 ? "A bit chilly. A hot coffee sounds perfect."
+              : "Nice weather. Coffee still wins.";
+          }
+        });
+        window.externalWidgets.paintHomePhotos?.();
+      }
+    });
+  </script>
+</body>
+</html>

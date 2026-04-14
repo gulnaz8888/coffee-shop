@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+scrape_configs:
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth-service:3001']
+
+  - job_name: 'reservation-service'
+    static_configs:
+      - targets: ['reservation-service:3002']
+
+  - job_name: 'external-service'
+    static_configs:
+      - targets: ['external-service:3003']

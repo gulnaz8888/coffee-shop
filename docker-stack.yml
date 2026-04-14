@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  auth-service:
+    image: coffee-shop-auth-service:latest
+    ports:
+      - "3001:3001"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/coffeeshop
+      JWT_SECRET: your_super_secret_key
+    deploy:
+      replicas: 2
+
+  reservation-service:
+    image: coffee-shop-reservation-service:latest
+    ports:
+      - "3002:3002"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/coffeeshop
+      JWT_SECRET: your_super_secret_key
+    deploy:
+      replicas: 2
+
+  external-service:
+    image: coffee-shop-external-service:latest
+    ports:
+      - "3003:3003"
+    environment:
+      UNSPLASH_ACCESS_KEY: KCsguid_snbauEydTtNCTxyAlcXdfwPCDt4tyOg2E14
+    deploy:
+      replicas: 1
+
+  frontend:
+    image: coffee-shop-frontend:latest
+    ports:
+      - "8080:80"
+    deploy:
+      replicas: 2
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9091:9090"
+    deploy:
+      replicas: 1
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "4001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    deploy:
+      replicas: 1
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    ports:
+      - "9101:9100"
+    deploy:
+      replicas: 1
+
+volumes:
+  mongo_data:
+  grafana_data:
