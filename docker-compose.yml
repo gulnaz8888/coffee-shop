@@ -1,5 +1,4 @@
 services:
-
   mongo:
     image: mongo:6
     container_name: coffee_mongo
@@ -8,6 +7,12 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   auth-service:
     build:
@@ -21,7 +26,14 @@ services:
       MONGO_URI: mongodb://mongo:27017/coffeeshop
       JWT_SECRET: your_super_secret_key
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   reservation-service:
     build:
@@ -35,7 +47,14 @@ services:
       MONGO_URI: mongodb://mongo:27017/coffeeshop
       JWT_SECRET: your_super_secret_key
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   external-service:
     build:
@@ -47,8 +66,12 @@ services:
       - "3003:3003"
     environment:
       UNSPLASH_ACCESS_KEY: KCsguid_snbauEydTtNCTxyAlcXdfwPCDt4tyOg2E14
-    depends_on:
-      - mongo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
     build:

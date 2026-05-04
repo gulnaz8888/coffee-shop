@@ -4,12 +4,21 @@ groups:
 
       - alert: HighMemoryUsage
         expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 80
-        for: 1m
+        for: 2m
         labels:
           severity: warning
         annotations:
           summary: "High memory usage detected"
-          description: "Memory usage is above 1%"
+          description: "Memory usage is above 80% on {{ $labels.instance }}"
+
+      - alert: CriticalMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CRITICAL memory usage"
+          description: "Memory usage is above 95% on {{ $labels.instance }}"
 
       - alert: ServiceDown
         expr: up == 0
@@ -18,4 +27,40 @@ groups:
           severity: critical
         annotations:
           summary: "Backend service is DOWN"
-          description: "Coffee shop backend is not responding"
+          description: "{{ $labels.job }} on {{ $labels.instance }} is not responding"
+
+      - alert: HighErrorRate
+        expr: rate(auth_errors_total[5m]) > 0.1 or rate(db_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} errors per second"
+
+      - alert: DatabaseConnectionFailed
+        expr: mongoose_connection_state != 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection failed"
+          description: "MongoDB connection state is {{ $value }} on {{ $labels.job }}"
+
+      - alert: HighAuthFailureRate
+        expr: rate(auth_failures_total[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High authentication failure rate"
+          description: "{{ $value }} failed auth attempts per minute"
+
+      - alert: ServiceHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_ms_bucket[5m])) > 1000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High service latency"
+          description: "95th percentile latency is {{ $value }}ms on {{ $labels.job }}"

@@ -1,22 +1,31 @@
 global:
   scrape_interval: 15s
+  evaluation_interval: 15s
 
 rule_files:
   - "alert_rules.yml"
 
-scrape_configs:
-  - job_name: 'node-exporter'
-    static_configs:
-      - targets: ['node-exporter:9100']
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
 
+scrape_configs:
   - job_name: 'auth-service'
     static_configs:
       - targets: ['auth-service:3001']
+    metrics_path: '/metrics'
 
   - job_name: 'reservation-service'
     static_configs:
       - targets: ['reservation-service:3002']
+    metrics_path: '/metrics'
 
   - job_name: 'external-service'
     static_configs:
       - targets: ['external-service:3003']
+    metrics_path: '/metrics'
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
