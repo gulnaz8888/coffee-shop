@@ -1,3 +1,7 @@
 node_modules
 .env
 .DS_Store
+k8s/minikube-linux-amd64
+k8s/kubectl
+terraform/.terraform/
+*.lock.hcl
