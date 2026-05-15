@@ -1,0 +1,53 @@
+---
+- name: Deploy Coffee Shop SRE Stack
+  hosts: localhost
+  become: yes
+  vars:
+    repo_url: "https://github.com/gulnaz8888/coffee-shop.git"
+    app_dir: "/home/ubuntu/coffee-shop"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker and dependencies
+      apt:
+        name:
+          - docker.io
+          - docker-compose-v2
+          - git
+          - curl
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Clone repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: main
+        force: yes
+
+    - name: Deploy with Docker Compose v2
+      command:
+        cmd: "docker compose up -d --build"
+        chdir: "{{ app_dir }}"
+
+    - name: Check all services are running
+      command: docker ps --format "table {{.Names}}\t{{.Status}}"
+      register: docker_ps
+
+    - name: Show running containers
+      debug:
+        msg: "{{ docker_ps.stdout_lines }}"

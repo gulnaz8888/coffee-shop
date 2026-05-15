@@ -94,7 +94,6 @@ mongoose.connection.on('reconnected', () => {
 const User = mongoose.model('User', UserSchema);
  
 
-const User = mongoose.model('User', UserSchema);
 
 
 app.get('/health', async (req, res) => {
