@@ -20,7 +20,7 @@ services:
       - "3001:3001"
     environment:
       MONGO_URI: mongodb://mongo:27017/coffeeshop
-      JWT_SECRET: super_secret_key_2024
+      JWT_SECRET: secret
     depends_on:
       - mongo
     networks:
@@ -34,7 +34,7 @@ services:
       - "3002:3002"
     environment:
       MONGO_URI: mongodb://mongo:27017/coffeeshop
-      JWT_SECRET: super_secret_key_2024
+      JWT_SECRET: secret
     depends_on:
       - mongo
     networks:
@@ -46,8 +46,6 @@ services:
     restart: always
     ports:
       - "3003:3003"
-    environment:
-      UNSPLASH_ACCESS_KEY: demo_key
     networks:
       - coffee_network
 
@@ -83,6 +81,19 @@ services:
     restart: always
     ports:
       - "3006:3006"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/coffeeshop
+    depends_on:
+      - mongo
+    networks:
+      - coffee_network
+
+  payment-service:
+    build: ./services/payment-service
+    container_name: coffee_payment
+    restart: always
+    ports:
+      - "3007:3007"
     environment:
       MONGO_URI: mongodb://mongo:27017/coffeeshop
     depends_on:

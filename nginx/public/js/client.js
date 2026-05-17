@@ -122,3 +122,78 @@
   window.authStore = { setToken, getToken, clearToken };
   window.externalWidgets = { loadWeatherAstana, paintHomePhotos };
 })();
+// ========== ORDER SERVICE API ==========
+async function createOrder(orderData, token) {
+    const response = await fetch('/api/orders/orders', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(orderData)
+    });
+    return response.json();
+}
+
+async function getUserOrders(token) {
+    const response = await fetch('/api/orders/orders', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+}
+
+// ========== PRODUCT SERVICE API ==========
+async function getProducts(category = '') {
+    const url = category ? `/api/products/products/category/${category}` : '/api/products/products';
+    const response = await fetch(url);
+    return response.json();
+}
+
+async function getProductById(id) {
+    const response = await fetch(`/api/products/products/${id}`);
+    return response.json();
+}
+
+// ========== NOTIFICATION SERVICE API ==========
+async function getUserNotifications(userId, token) {
+    const response = await fetch(`/api/notifications/notifications/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+}
+
+async function markNotificationRead(notificationId, token) {
+    const response = await fetch(`/api/notifications/notifications/${notificationId}/read`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+}
+
+// ========== ОБНОВЛЕННЫЙ ВИДЖЕТ ПОГОДЫ ==========
+window.externalWidgets = window.externalWidgets || {};
+
+window.externalWidgets.loadWeatherAstana = async function() {
+    try {
+        const response = await fetch('/api/unsplash/weather');
+        const data = await response.json();
+        return { temp: data.temperature || 22, wind: data.windspeed || 15 };
+    } catch {
+        return { temp: 22, wind: 15 };
+    }
+};
+
+window.externalWidgets.paintHomePhotos = async function() {
+    try {
+        const response = await fetch('/api/unsplash/photos');
+        const photos = await response.json();
+        const imgElements = document.querySelectorAll('.heroMedia img');
+        if (imgElements.length && photos.length) {
+            imgElements[0].src = photos[0].urls?.regular || photos[0].url || '/assets/hero.jpg';
+        }
+    } catch {
+        console.log('Weather widget ready');
+    }
+};
+
+console.log('Client.js updated with Order, Product, Notification services');

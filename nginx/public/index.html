@@ -1,254 +1,232 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Aurora Coffee</title>
-  <link rel="stylesheet" href="/css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora Coffee Shop</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #faf6f0; color: #2c1a08; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1, h2 { color: #b06030; margin-bottom: 20px; }
+        .card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        input { display: block; width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 8px; }
+        button { background: #b06030; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; margin-right: 10px; }
+        button:hover { background: #c07040; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+        .product-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .product-card h3 { margin-bottom: 8px; }
+        .product-card p { color: #b06030; font-size: 20px; font-weight: bold; margin-bottom: 12px; }
+        .order-card { background: #f3ece0; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+        .hidden { display: none; }
+        .flex-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        .error { color: red; margin-top: 8px; }
+        .success { color: green; margin-top: 8px; }
+    </style>
 </head>
 <body>
+<div class="container">
+    <h1>☕ Aurora Coffee Shop</h1>
 
-  <div class="topbar">
-    <div class="wrap topbarInner">
-      <div class="topLeft">
-        <span>+7 (777) 777-77-77</span>
-        <span class="sep">|</span>
-        <span>Mon–Sun: 09:00–22:00</span>
-        <span class="sep">|</span>
-        <span id="weatherInfo">Loading weather...</span>
-      </div>
-      <div class="topRight">
-        <span>Instagram: @aurora.coffee</span>
-      </div>
+    <!-- Auth Card -->
+    <div class="card">
+        <h2>Account</h2>
+        <div id="auth-box">
+            <input type="email" id="email" placeholder="Email" value="test@coffee.com">
+            <input type="password" id="password" placeholder="Password" value="123456">
+            <div class="flex-row">
+                <button id="signin-btn">Sign In</button>
+                <button id="register-btn">Register</button>
+                <button id="logout-btn" class="hidden">Logout</button>
+            </div>
+            <div id="auth-status"></div>
+        </div>
+        <div id="profile-box" class="hidden">
+            <p>Welcome, <span id="user-email-display"></span>!</p>
+            <button id="logout-btn2">Logout</button>
+        </div>
     </div>
-  </div>
 
-  <header class="header">
-    <div class="wrap headerInner">
-      <a class="brand" href="/">
-        <div class="logo">☕</div>
-        <div>
-          <div class="brandName">Aurora Coffee</div>
-          <div class="brandSub">Coffee • Tea • Desserts</div>
+    <!-- Products Card -->
+    <div class="card">
+        <h2>Products (from Product Service)</h2>
+        <div id="products-list" class="products-grid">
+            <p>Loading products...</p>
         </div>
-      </a>
-      <nav class="nav">
-        <a href="/" class="navLink active">Home</a>
-        <a href="#catalog" class="navLink">Catalog</a>
-        <a href="#about" class="navLink">About</a>
-        <a href="#contacts" class="navLink">Contacts</a>
-      </nav>
-      <div class="headerActions">
-        <a class="btnOutline" href="/auth.html">Account</a>
-        <a class="btnPrimary" href="/reservations.html">Reservations</a>
-      </div>
     </div>
-    <div class="wrap headerBottom">
-      <button class="catBtn" type="button">☰ Product catalog</button>
-      <button class="catBtn" type="button">☰ Coffee machines</button>
-      <div class="search">
-        <input id="q" type="text" placeholder="Search products..." />
-        <button id="searchBtn" class="searchBtn" type="button">🔍</button>
-      </div>
+
+    <!-- Orders Card -->
+    <div class="card">
+        <h2>My Orders (from Order Service)</h2>
+        <div id="orders-list">
+            <p>Sign in to see your orders.</p>
+        </div>
     </div>
-  </header>
+</div>
 
-  <main class="wrap">
+<script>
+    let token = localStorage.getItem('token');
 
-    <!-- HERO -->
-    <section class="hero">
-      <div class="heroMedia">
-        <img src="/assets/hero.jpg" alt="Aurora Coffee"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
-        <div class="ph" style="display:none;height:100%;width:100%;"></div>
-      </div>
-      <div class="heroText">
-        <div class="weatherBox">
-          <div class="weatherTitle">Today in Astana</div>
-          <div id="wTemp" class="weatherTemp">--°C</div>
-          <div class="weatherMeta">
-            <div id="wWind" class="weatherPill">Wind: -- km/h</div>
-            <div class="weatherPill">☕ Hot drink time</div>
-          </div>
-          <p id="heroWeatherHint" class="weatherTip">Checking the weather for you...</p>
-          <div class="heroBtns">
-            <a href="#catalog" class="heroBtn">View catalog</a>
-            <a href="/reservations.html" class="heroBtn">Book a table</a>
-          </div>
-        </div>
-      </div>
-    </section>
+    // Helper API call
+    async function apiCall(url, options = {}) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        try {
+            const response = await fetch(url, { ...options, headers });
+            return await response.json();
+        } catch (err) {
+            console.error('API Error:', err);
+            return null;
+        }
+    }
 
-    <!-- CATEGORIES -->
-    <section id="catalog" class="block">
-      <div class="blockHead"><h2>Categories</h2></div>
-      <div class="cats">
-        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Cocoa</div></a>
-        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Capsules</div></a>
-        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Beans</div></a>
-        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Professional</div></a>
-        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Instant</div></a>
-        <a class="catCard" href="#products"><div class="catImg ph"></div><div class="catTitle">Tea</div></a>
-      </div>
-    </section>
+    // Load products from Product Service
+    async function loadProducts() {
+        const container = document.getElementById('products-list');
+        container.innerHTML = '<p>Loading products...</p>';
+        try {
+            const response = await fetch('/api/products/products');
+            const products = await response.json();
+            if (products && products.length) {
+                container.innerHTML = products.map(p => `
+                    <div class="product-card">
+                        <h3>${p.name || 'Product'}</h3>
+                        <p>${p.price || 0} ₸</p>
+                        <button onclick="createOrder('${p._id || p.id}')">Order Now</button>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<p>No products found. Try seeding: <button onclick="seedProducts()">Seed Products</button></p>';
+            }
+        } catch (err) {
+            container.innerHTML = '<p>⚠️ Product Service unavailable. Make sure coffee_product container is running.</p>';
+        }
+    }
 
-    <!-- PRODUCTS -->
-    <section id="products" class="block">
-      <div class="blockHead row">
-        <h2>Best sellers</h2>
-        <div class="tabs">
-          <button class="tab active" type="button">Best</button>
-          <button class="tab" type="button">New</button>
-        </div>
-      </div>
-      <div class="products" id="productsGrid">
-        <div class="pCard" data-name="Jacobs Monarch Beans">
-          <div class="pImg ph"></div>
-          <div class="pBody">
-            <div class="pName">Jacobs Monarch Beans</div>
-            <div class="pPrice">2 538 ₸</div>
-            <button class="pBtn">Order</button>
-          </div>
-        </div>
-        <div class="pCard" data-name="L'or Capsules 10 pcs">
-          <div class="pImg ph"></div>
-          <div class="pBody">
-            <div class="pName">L'or Capsules, 10 pcs</div>
-            <div class="pPrice">2 363 ₸</div>
-            <button class="pBtn">Order</button>
-          </div>
-        </div>
-        <div class="pCard" data-name="Delizioso Capsules 10 pcs">
-          <div class="pImg ph"></div>
-          <div class="pBody">
-            <div class="pName">Delizioso Capsules, 10 pcs</div>
-            <div class="pPrice">2 363 ₸</div>
-            <button class="pBtn">Order</button>
-          </div>
-        </div>
-        <div class="pCard" data-name="L'or Espresso Forza">
-          <div class="pImg ph"></div>
-          <div class="pBody">
-            <div class="pName">L'or Espresso Forza</div>
-            <div class="pPrice">2 363 ₸</div>
-            <button class="pBtn">Order</button>
-          </div>
-        </div>
-        <div class="pCard" data-name="L'or Espresso Hazelnut">
-          <div class="pImg ph"></div>
-          <div class="pBody">
-            <div class="pName">L'or Espresso Hazelnut</div>
-            <div class="pPrice">2 538 ₸</div>
-            <button class="pBtn">Order</button>
-          </div>
-        </div>
-      </div>
-    </section>
+    // Create order via Order Service
+    window.createOrder = async function(productId) {
+        if (!token) {
+            document.getElementById('auth-status').innerHTML = '<p class="error">Please sign in first!</p>';
+            return;
+        }
+        try {
+            const order = await apiCall('/api/orders/orders', {
+                method: 'POST',
+                body: JSON.stringify({ items: [{ productId, quantity: 1, price: 100 }], totalAmount: 100 })
+            });
+            if (order && order._id) {
+                document.getElementById('auth-status').innerHTML = '<p class="success">✅ Order created successfully!</p>';
+                loadOrders();
+                setTimeout(() => document.getElementById('auth-status').innerHTML = '', 3000);
+            } else {
+                throw new Error('Order failed');
+            }
+        } catch (err) {
+            document.getElementById('auth-status').innerHTML = '<p class="error">❌ Failed to create order</p>';
+        }
+    };
 
-    <!-- REVIEWS -->
-    <section id="reviews" class="block">
-      <div class="blockHead row">
-        <h2>Customer Reviews</h2>
-        <div class="pill">4.9 ★ Average Rating</div>
-      </div>
-      <div class="reviewsGrid">
-        <div class="reviewCard">
-          <div class="reviewTop">
-            <div class="userAvatar" style="background-image:url('https://i.pravatar.cc/150?u=11')"></div>
-            <div><div class="userName">Arman I.</div><div class="userMeta">2 days ago</div></div>
-            <div class="userRating">★★★★★</div>
-          </div>
-          <p class="reviewText">The best flat white in Astana! The beans are always fresh and the atmosphere is perfect.</p>
-        </div>
-        <div class="reviewCard">
-          <div class="reviewTop">
-            <div class="userAvatar" style="background-image:url('https://i.pravatar.cc/150?u=22')"></div>
-            <div><div class="userName">Elena M.</div><div class="userMeta">1 week ago</div></div>
-            <div class="userRating">★★★★★</div>
-          </div>
-          <p class="reviewText">Love Aurora! The reservation system is very convenient. My go-to coffee spot.</p>
-        </div>
-        <div class="reviewCard">
-          <div class="reviewTop">
-            <div class="userAvatar" style="background-image:url('https://i.pravatar.cc/150?u=33')"></div>
-            <div><div class="userName">Dias K.</div><div class="userMeta">3 days ago</div></div>
-            <div class="userRating">★★★★★</div>
-          </div>
-          <p class="reviewText">Amazing selection of beans. Ordered online and it arrived perfectly packed.</p>
-        </div>
-      </div>
-    </section>
+    // Load user orders
+    async function loadOrders() {
+        if (!token) {
+            document.getElementById('orders-list').innerHTML = '<p>Sign in to see your orders.</p>';
+            return;
+        }
+        const container = document.getElementById('orders-list');
+        container.innerHTML = '<p>Loading orders...</p>';
+        try {
+            const orders = await apiCall('/api/orders/orders');
+            if (orders && orders.length) {
+                container.innerHTML = orders.map(o => `
+                    <div class="order-card">
+                        <strong>Order #${o._id}</strong> - Status: ${o.status || 'pending'} - Total: ${o.totalAmount || 0} ₸
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<p>No orders yet. Create one above!</p>';
+            }
+        } catch (err) {
+            container.innerHTML = '<p>⚠️ Order Service unavailable.</p>';
+        }
+    }
 
-    <!-- ABOUT -->
-    <section id="about" class="block">
-      <div class="aboutContainer">
-        <div class="aboutText">
-          <h2>Our Story</h2>
-          <p>Aurora Coffee was born from a love of great coffee and technology. We combine premium roasting with advanced reliability engineering — because your morning coffee should never fail. Every cup is monitored, every bean is chosen with care.</p>
-        </div>
-        <div class="aboutStats">
-          <div class="statCard"><div class="statNum">99.9%</div><div class="statLabel">Uptime</div></div>
-          <div class="statCard"><div class="statNum">15+</div><div class="statLabel">Blends</div></div>
-          <div class="statCard"><div class="statNum">2k+</div><div class="statLabel">Customers</div></div>
-        </div>
-      </div>
-    </section>
+    // Seed products (if empty)
+    window.seedProducts = async function() {
+        try {
+            await fetch('/api/products/seed', { method: 'POST' });
+            alert('Products seeded! Refresh page.');
+            loadProducts();
+        } catch (err) {
+            alert('Seed failed');
+        }
+    };
 
-    <!-- CONTACTS -->
-    <section id="contacts" class="block">
-      <div class="blockHead"><h2>Contacts</h2></div>
-      <div class="contactRow">
-        <div class="contactItem">Phone <b>+7 (777) 777-77-77</b></div>
-        <div class="contactItem">Email <b>info@auroracoffee.kz</b></div>
-        <div class="contactItem">Address <b>Astana, Mangilik El 12</b></div>
-      </div>
-    </section>
-
-  </main>
-
-  <footer class="footer">
-    <div class="wrap footerBottom">
-      <div>© 2026 Aurora Coffee</div>
-      <div>All rights reserved</div>
-    </div>
-  </footer>
-
-  <script src="/js/client.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const qInput = document.getElementById("q");
-      const sBtn   = document.getElementById("searchBtn");
-      function runSearch() {
-        const term = (qInput.value || "").toLowerCase().trim();
-        document.querySelectorAll(".pCard").forEach(c => {
-          c.style.display = (c.dataset.name || "").toLowerCase().includes(term) ? "" : "none";
+    // Login
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const data = await apiCall('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password })
         });
-      }
-      if (sBtn)   sBtn.addEventListener("click", runSearch);
-      if (qInput) qInput.addEventListener("input", runSearch);
+        if (data && data.token) {
+            token = data.token;
+            localStorage.setItem('token', token);
+            document.getElementById('auth-box').classList.add('hidden');
+            document.getElementById('profile-box').classList.remove('hidden');
+            document.getElementById('user-email-display').innerText = email;
+            document.getElementById('auth-status').innerHTML = '<p class="success">✅ Logged in!</p>';
+            loadOrders();
+            setTimeout(() => document.getElementById('auth-status').innerHTML = '', 2000);
+        } else {
+            document.getElementById('auth-status').innerHTML = '<p class="error">❌ Login failed</p>';
+        }
+    }
 
-      if (window.externalWidgets) {
-        window.externalWidgets.loadWeatherAstana?.().then(w => {
-          if (!w) return;
-          const tempEl = document.getElementById("wTemp");
-          const windEl = document.getElementById("wWind");
-          const topEl  = document.getElementById("weatherInfo");
-          const hintEl = document.getElementById("heroWeatherHint");
-          if (tempEl) tempEl.textContent = `${w.temp}°C`;
-          if (windEl) windEl.textContent = `Wind: ${w.wind} km/h`;
-          if (topEl)  topEl.textContent  = `Astana: ${w.temp}°C, Wind: ${w.wind} km/h`;
-          if (hintEl) {
-            const t = w.temp;
-            hintEl.textContent = t <= 0
-              ? "It's freezing! Perfect excuse for a hot latte."
-              : t <= 10 ? "A bit chilly. A hot coffee sounds perfect."
-              : "Nice weather. Coffee still wins.";
-          }
+    // Register
+    async function register() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const name = email.split('@')[0];
+        const data = await apiCall('/api/auth/register', {
+            method: 'POST',
+            body: JSON.stringify({ name, email, password })
         });
-        window.externalWidgets.paintHomePhotos?.();
-      }
-    });
-  </script>
+        if (data && data.token) {
+            document.getElementById('auth-status').innerHTML = '<p class="success">✅ Registered! Please sign in.</p>';
+        } else {
+            document.getElementById('auth-status').innerHTML = '<p class="error">❌ Registration failed</p>';
+        }
+    }
+
+    // Logout
+    function logout() {
+        localStorage.removeItem('token');
+        token = null;
+        location.reload();
+    }
+
+    // Check auth on load
+    function checkAuth() {
+        if (token) {
+            document.getElementById('auth-box').classList.add('hidden');
+            document.getElementById('profile-box').classList.remove('hidden');
+            loadOrders();
+        } else {
+            document.getElementById('auth-box').classList.remove('hidden');
+            document.getElementById('profile-box').classList.add('hidden');
+        }
+    }
+
+    // Wire up buttons
+    document.getElementById('signin-btn').onclick = login;
+    document.getElementById('register-btn').onclick = register;
+    const logoutBtns = document.querySelectorAll('#logout-btn, #logout-btn2');
+    logoutBtns.forEach(btn => btn.onclick = logout);
+
+    // Load products and check auth
+    loadProducts();
+    checkAuth();
+</script>
 </body>
 </html>
