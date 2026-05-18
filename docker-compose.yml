@@ -17,8 +17,8 @@ services:
     ports:
       - "3001:3001"
     environment:
-      MONGO_URI: mongodb://mongo:27017/coffeeshop
-      JWT_SECRET: secret
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/coffeeshop}
+      JWT_SECRET: ${JWT_SECRET:-secret}
     depends_on:
       - mongo
     networks:
@@ -31,8 +31,8 @@ services:
     ports:
       - "3002:3002"
     environment:
-      MONGO_URI: mongodb://mongo:27017/coffeeshop
-      JWT_SECRET: secret
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/coffeeshop}
+      JWT_SECRET: ${JWT_SECRET:-secret}
     depends_on:
       - mongo
     networks:
@@ -44,6 +44,8 @@ services:
     restart: always
     ports:
       - "3003:3003"
+    environment:
+      UNSPLASH_ACCESS_KEY: ${UNSPLASH_ACCESS_KEY:-demo_key}
     networks:
       - coffee_network
 
@@ -54,7 +56,7 @@ services:
     ports:
       - "3004:3004"
     environment:
-      MONGO_URI: mongodb://mongo:27017/coffeeshop
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/coffeeshop}
     depends_on:
       - mongo
     networks:
@@ -67,7 +69,7 @@ services:
     ports:
       - "3005:3005"
     environment:
-      MONGO_URI: mongodb://mongo:27017/coffeeshop
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/coffeeshop}
     depends_on:
       - mongo
     networks:
@@ -80,7 +82,7 @@ services:
     ports:
       - "3006:3006"
     environment:
-      MONGO_URI: mongodb://mongo:27017/coffeeshop
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/coffeeshop}
     depends_on:
       - mongo
     networks:
@@ -93,7 +95,7 @@ services:
     ports:
       - "3007:3007"
     environment:
-      MONGO_URI: mongodb://mongo:27017/coffeeshop
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/coffeeshop}
     depends_on:
       - mongo
     networks:
@@ -131,7 +133,7 @@ services:
     ports:
       - "4000:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
     volumes:
       - grafana_data:/var/lib/grafana
     networks:

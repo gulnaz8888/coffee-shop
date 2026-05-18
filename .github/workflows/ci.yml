@@ -6,7 +6,7 @@ on:
   push:
 
 jobs:
-  validate-and-build:
+  validate-and-smoke-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -18,20 +18,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git clone --depth 1 --branch "$CLONE_REF" "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
-
-      - name: Show tool versions
-        working-directory: ./repo
-        run: |
-          node --version
-          docker --version
-          docker compose version
-
-      - name: Install kubectl
-        run: |
-          curl -fsSL -o kubectl https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/kubectl
-          kubectl version --client
 
       - name: Validate docker-compose
         working-directory: ./repo
@@ -45,19 +31,48 @@ jobs:
             node --check "${file}"
           done
 
-      - name: Validate Kubernetes manifests
+      - name: Start stack for smoke tests
         working-directory: ./repo
-        run: kubectl kustomize k8s > /dev/null
+        env:
+          JWT_SECRET: ci-secret
+          UNSPLASH_ACCESS_KEY: demo_key
+          GRAFANA_ADMIN_PASSWORD: admin
+        run: docker compose up -d --build
 
-      - name: Build application images
+      - name: Run smoke tests
         working-directory: ./repo
         run: |
-          docker compose build \
-            auth-service \
-            reservation-service \
-            external-service \
-            order-service \
-            notification-service \
-            product-service \
-            payment-service \
-            frontend
+          targets=(
+            "http://127.0.0.1/"
+            "http://127.0.0.1:3001/health"
+            "http://127.0.0.1:3002/health"
+            "http://127.0.0.1:3003/health"
+            "http://127.0.0.1:3004/health"
+            "http://127.0.0.1:3005/health"
+            "http://127.0.0.1:3006/health"
+            "http://127.0.0.1:3007/health"
+          )
+
+          for target in "${targets[@]}"; do
+            echo "Checking ${target}"
+            for attempt in {1..30}; do
+              if curl --silent --show-error --fail "$target" > /dev/null; then
+                break
+              fi
+              if [ "$attempt" -eq 30 ]; then
+                echo "Smoke test failed for ${target}"
+                exit 1
+              fi
+              sleep 5
+            done
+          done
+
+      - name: Show compose logs on failure
+        if: failure()
+        working-directory: ./repo
+        run: docker compose logs --no-color
+
+      - name: Stop stack
+        if: always()
+        working-directory: ./repo
+        run: docker compose down -v

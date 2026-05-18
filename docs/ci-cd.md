@@ -1,96 +1,85 @@
 # CI/CD for This Project
 
-## What the project actually is
+## Deployment model
 
-This repository is not the monolith described in `README.md`.
-The real runnable app is:
+This repository now uses:
 
-- local development and smoke testing: `docker-compose.yml`
-- production-style deployment: `k8s/*.yaml`
-- services: `services/*`
-- frontend image: `nginx/`
+- `CI`: Docker Compose validation, Node syntax checks, full stack startup, smoke tests
+- `CD`: `ansible-playbook` deployment to a Linux server over SSH
 
-Because of that, the safest CI/CD path is:
+The deployed application is started on the server with `docker compose up -d --build`.
 
-1. `CI` validates the current source and builds Docker images.
-2. `CD` publishes images to `GHCR`.
-3. `CD` deploys Kubernetes manifests and injects your own secrets at deploy time.
+## Required repository secrets
 
-## What was changed
+Create these in `Settings -> Secrets and variables -> Actions -> Repository secrets`:
 
-- services now read `MONGO_URI` and `PORT` from environment variables
-- `payment-service` was added to Kubernetes manifests
-- frontend Kubernetes deployment now uses the custom `nginx` image from this repo
-- hardcoded Kubernetes secrets were removed from tracked manifests
-- GitHub Actions workflows were added in `.github/workflows/`
+- `DEPLOY_HOST`: server IP or DNS name
+- `DEPLOY_USER`: SSH username on the server
+- `DEPLOY_PORT`: SSH port, usually `22`
+- `DEPLOY_SSH_KEY`: private SSH key content used to connect to the server
+- `JWT_SECRET`: application JWT secret
+- `UNSPLASH_ACCESS_KEY`: external API key, or `demo_key`
+- `GRAFANA_ADMIN_PASSWORD`: optional, set your Grafana password
 
-## Required GitHub Secrets
+Optional repository variable:
 
-Create these repository secrets:
+- `DEPLOY_APP_DIR`: target directory on the server, default is `/opt/coffee-shop`
 
-- `KUBECONFIG_B64`: base64 of your kubeconfig file
-- `JWT_SECRET`: JWT secret for auth services
-- `UNSPLASH_ACCESS_KEY`: key for external service
-- `GHCR_USERNAME`: your GitHub username
-- `GHCR_TOKEN`: GitHub PAT with at least `read:packages`
+## What CI does
 
-Create this repository variable if you do not want to use `default` namespace:
+Workflow file: `.github/workflows/ci.yml`
 
-- `KUBE_NAMESPACE`
+On each push and pull request it:
 
-## How to prepare kubeconfig
+- validates `docker-compose.yml`
+- checks `services/*/server.js` syntax with `node --check`
+- runs `docker compose up -d --build`
+- checks HTTP availability of:
+  - `/`
+  - `:3001/health`
+  - `:3002/health`
+  - `:3003/health`
+  - `:3004/health`
+  - `:3005/health`
+  - `:3006/health`
+  - `:3007/health`
 
-On your machine:
+## What CD does
 
-```bash
-base64 -w 0 ~/.kube/config
-```
+Workflow file: `.github/workflows/cd.yml`
 
-Copy the output into GitHub Secret `KUBECONFIG_B64`.
+It:
 
-If you are on Windows PowerShell:
+- installs Ansible on the GitHub runner
+- connects to your server through SSH
+- installs Docker and Git on the server
+- pulls the current repository branch on the server
+- writes `.env`
+- runs `docker compose up -d --build --remove-orphans`
+- performs remote smoke tests
 
-```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("$HOME\\.kube\\config"))
-```
+## Server requirements
 
-## How the workflows behave
+Your target server should be:
 
-### CI
+- Ubuntu or Debian-based
+- reachable by SSH from GitHub-hosted runners
+- accessible with the private key stored in `DEPLOY_SSH_KEY`
 
-File: `.github/workflows/ci.yml`
+No manual Docker installation is required. The playbook installs it.
 
-Runs on push and pull request:
+## Deployment sequence
 
-- `docker compose config`
-- `node --check` for each service entrypoint
-- `kubectl kustomize k8s`
-- `docker compose build`
+1. Push your branch with the workflow files.
+2. Add the repository secrets listed above.
+3. Ensure `Actions -> General -> Workflow permissions` is set to `Read and write permissions`.
+4. Run `CI` on your branch and wait for green status.
+5. Run `CD` manually on your branch using `workflow_dispatch`.
+6. Verify the server:
+   - `docker ps`
+   - `curl http://SERVER_IP/`
+   - `curl http://SERVER_IP:3001/health`
 
-### CD
+## Local reference
 
-File: `.github/workflows/cd.yml`
-
-Runs on push to `main` or manually:
-
-- builds all service and frontend images
-- pushes images to `ghcr.io/<your-github-owner>/...`
-- creates or updates Kubernetes secrets
-- rewrites image tags in kustomize
-- applies manifests
-- waits for deployment rollout
-
-## What you still need to replace with your own data
-
-- old Terraform state and tfvars files in the repo should not be reused as-is
-- if you keep using Terraform, replace `project_id`, `repo_url`, SSH keys, and any VM-specific values with your own
-- if you do not use Kubernetes, adapt `cd.yml` to your VM or Render target instead of applying `k8s/`
-
-## Practical sequence
-
-1. Fork the repo to your own GitHub account.
-2. Push these changes to your branch.
-3. Add the GitHub secrets listed above.
-4. Merge into `main`.
-5. Run `CD` manually once from GitHub Actions.
-6. Check `kubectl get pods -n <namespace>`.
+Example environment file is in `.env.example`.
