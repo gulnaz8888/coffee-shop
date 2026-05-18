@@ -16,61 +16,44 @@ jobs:
     permissions:
       contents: read
       packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - image: coffee-shop-auth-service
-            context: ./services/auth-service
-            dockerfile: ./services/auth-service/Dockerfile
-          - image: coffee-shop-reservation-service
-            context: ./services/reservation-service
-            dockerfile: ./services/reservation-service/Dockerfile
-          - image: coffee-shop-external-service
-            context: ./services/external-service
-            dockerfile: ./services/external-service/Dockerfile
-          - image: coffee-shop-order-service
-            context: ./services/order-service
-            dockerfile: ./services/order-service/Dockerfile
-          - image: coffee-shop-notification-service
-            context: ./services/notification-service
-            dockerfile: ./services/notification-service/Dockerfile
-          - image: coffee-shop-product-service
-            context: ./services/product-service
-            dockerfile: ./services/product-service/Dockerfile
-          - image: coffee-shop-payment-service
-            context: ./services/payment-service
-            dockerfile: ./services/payment-service/Dockerfile
-          - image: coffee-shop-frontend
-            context: ./nginx
-            dockerfile: ./nginx/Dockerfile
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Normalize registry namespace
-        run: echo "IMAGE_NAMESPACE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Clone repository
+        env:
+          CLONE_REF: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git clone --depth 1 --branch "$CLONE_REF" "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GHCR_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GHCR_PASSWORD" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
 
-      - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          context: ${{ matrix.context }}
-          file: ${{ matrix.dockerfile }}
-          push: true
-          tags: |
-            ${{ env.IMAGE_NAMESPACE }}/${{ matrix.image }}:${{ github.sha }}
-            ${{ env.IMAGE_NAMESPACE }}/${{ matrix.image }}:latest
+      - name: Build and push images
+        working-directory: ./repo
+        run: |
+          IMAGE_NAMESPACE="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"
+
+          declare -a images=(
+            "coffee-shop-auth-service|./services/auth-service|./services/auth-service/Dockerfile"
+            "coffee-shop-reservation-service|./services/reservation-service|./services/reservation-service/Dockerfile"
+            "coffee-shop-external-service|./services/external-service|./services/external-service/Dockerfile"
+            "coffee-shop-order-service|./services/order-service|./services/order-service/Dockerfile"
+            "coffee-shop-notification-service|./services/notification-service|./services/notification-service/Dockerfile"
+            "coffee-shop-product-service|./services/product-service|./services/product-service/Dockerfile"
+            "coffee-shop-payment-service|./services/payment-service|./services/payment-service/Dockerfile"
+            "coffee-shop-frontend|./nginx|./nginx/Dockerfile"
+          )
+
+          for item in "${images[@]}"; do
+            IFS='|' read -r image context dockerfile <<< "$item"
+            full_image="${IMAGE_NAMESPACE}/${image}"
+            docker build -f "$dockerfile" -t "${full_image}:${GITHUB_SHA}" -t "${full_image}:latest" "$context"
+            docker push "${full_image}:${GITHUB_SHA}"
+            docker push "${full_image}:latest"
+          done
 
   deploy:
     runs-on: ubuntu-latest
@@ -79,8 +62,19 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Clone repository
+        env:
+          CLONE_REF: ${{ github.ref_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git clone --depth 1 --branch "$CLONE_REF" "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
+
+      - name: Install kubectl
+        run: |
+          curl -fsSL -o kubectl https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+          kubectl version --client
 
       - name: Resolve deploy variables
         env:
@@ -89,14 +83,6 @@ jobs:
           echo "KUBE_NAMESPACE=${RAW_NAMESPACE:-default}" >> "$GITHUB_ENV"
           echo "IMAGE_NAMESPACE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: v1.30.0
-
-      - name: Set up kustomize
-        uses: imranismail/setup-kustomize@v2
-
       - name: Configure kubeconfig
         env:
           KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}
@@ -104,48 +90,49 @@ jobs:
           mkdir -p "$HOME/.kube"
           echo "$KUBECONFIG_B64" | base64 --decode > "$HOME/.kube/config"
 
-      - name: Create namespace and registry pull secret
+      - name: Create namespace and secrets
         env:
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
         run: |
           kubectl create namespace "$KUBE_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
           until kubectl get serviceaccount default -n "$KUBE_NAMESPACE" >/dev/null 2>&1; do sleep 2; done
+
           kubectl -n "$KUBE_NAMESPACE" create secret docker-registry ghcr-pull-secret \
             --docker-server=ghcr.io \
             --docker-username="$GHCR_USERNAME" \
             --docker-password="$GHCR_TOKEN" \
             --dry-run=client -o yaml | kubectl apply -f -
+
           kubectl patch serviceaccount default -n "$KUBE_NAMESPACE" \
             --type merge \
             -p '{"imagePullSecrets":[{"name":"ghcr-pull-secret"}]}'
 
-      - name: Create application secrets
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
-        run: |
           kubectl -n "$KUBE_NAMESPACE" create secret generic jwt-secret \
             --from-literal=secret="$JWT_SECRET" \
             --dry-run=client -o yaml | kubectl apply -f -
+
           kubectl -n "$KUBE_NAMESPACE" create secret generic unsplash-secret \
             --from-literal=access_key="$UNSPLASH_ACCESS_KEY" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Inject target namespace and image tags
-        working-directory: ./k8s
+      - name: Rewrite manifests for target namespace and images
+        working-directory: ./repo
         run: |
-          kustomize edit set namespace "$KUBE_NAMESPACE"
-          kustomize edit set image coffee-shop-auth-service="$IMAGE_NAMESPACE/coffee-shop-auth-service:$GITHUB_SHA"
-          kustomize edit set image coffee-shop-reservation-service="$IMAGE_NAMESPACE/coffee-shop-reservation-service:$GITHUB_SHA"
-          kustomize edit set image coffee-shop-external-service="$IMAGE_NAMESPACE/coffee-shop-external-service:$GITHUB_SHA"
-          kustomize edit set image coffee-shop-order-service="$IMAGE_NAMESPACE/coffee-shop-order-service:$GITHUB_SHA"
-          kustomize edit set image coffee-shop-notification-service="$IMAGE_NAMESPACE/coffee-shop-notification-service:$GITHUB_SHA"
-          kustomize edit set image coffee-shop-product-service="$IMAGE_NAMESPACE/coffee-shop-product-service:$GITHUB_SHA"
-          kustomize edit set image coffee-shop-payment-service="$IMAGE_NAMESPACE/coffee-shop-payment-service:$GITHUB_SHA"
-          kustomize edit set image coffee-shop-frontend="$IMAGE_NAMESPACE/coffee-shop-frontend:$GITHUB_SHA"
+          sed -i "s/^namespace: .*/namespace: ${KUBE_NAMESPACE}/" k8s/kustomization.yaml
+          sed -i "s|image: coffee-shop-auth-service:latest|image: ${IMAGE_NAMESPACE}/coffee-shop-auth-service:${GITHUB_SHA}|" k8s/auth-deployment.yaml
+          sed -i "s|image: coffee-shop-reservation-service:latest|image: ${IMAGE_NAMESPACE}/coffee-shop-reservation-service:${GITHUB_SHA}|" k8s/reservation-deployment.yaml
+          sed -i "s|image: coffee-shop-external-service:latest|image: ${IMAGE_NAMESPACE}/coffee-shop-external-service:${GITHUB_SHA}|" k8s/external-deployment.yaml
+          sed -i "s|image: coffee-shop-order-service:latest|image: ${IMAGE_NAMESPACE}/coffee-shop-order-service:${GITHUB_SHA}|" k8s/order-deployment.yaml
+          sed -i "s|image: coffee-shop-notification-service:latest|image: ${IMAGE_NAMESPACE}/coffee-shop-notification-service:${GITHUB_SHA}|" k8s/notification-deployment.yaml
+          sed -i "s|image: coffee-shop-product-service:latest|image: ${IMAGE_NAMESPACE}/coffee-shop-product-service:${GITHUB_SHA}|" k8s/product-deployment.yaml
+          sed -i "s|image: coffee-shop-payment-service:latest|image: ${IMAGE_NAMESPACE}/coffee-shop-payment-service:${GITHUB_SHA}|" k8s/payment-deployment.yaml
+          sed -i "s|image: coffee-shop-frontend:latest|image: ${IMAGE_NAMESPACE}/coffee-shop-frontend:${GITHUB_SHA}|" k8s/frontend-deployment.yaml
 
       - name: Deploy to Kubernetes
+        working-directory: ./repo
         run: kubectl apply -k k8s
 
       - name: Wait for rollouts
