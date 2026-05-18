@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const client = require('prom-client');
@@ -11,8 +12,11 @@ app.get('/metrics', async (req, res) => {
   res.end(await client.register.metrics());
 });
 
-mongoose.connect('mongodb://mongo:27017/coffeeshop')
-  .then(() => console.log('Payment DB connected'));
+const mongoUri = process.env.MONGO_URI || 'mongodb://mongo:27017/coffeeshop';
+
+mongoose.connect(mongoUri)
+  .then(() => console.log('Payment DB connected'))
+  .catch((err) => console.error('DB error:', err.message));
 
 const PaymentSchema = new mongoose.Schema({
   orderId: String,
@@ -56,5 +60,5 @@ app.put('/payments/:id/status', async (req, res) => {
   res.json(payment);
 });
 
-const PORT = 3007;
+const PORT = process.env.PORT || 3007;
 app.listen(PORT, () => console.log(`Payment service on port ${PORT}`));

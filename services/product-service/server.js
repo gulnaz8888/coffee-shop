@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const client = require('prom-client');
@@ -11,9 +12,11 @@ app.get('/metrics', async (req, res) => {
   res.end(await client.register.metrics());
 });
 
-mongoose.connect('mongodb://mongo:27017/coffeeshop')
-  .then(() => console.log('✅ Product DB connected'))
-  .catch(err => console.error('DB error:', err));
+const mongoUri = process.env.MONGO_URI || 'mongodb://mongo:27017/coffeeshop';
+
+mongoose.connect(mongoUri)
+  .then(() => console.log('Product DB connected'))
+  .catch((err) => console.error('DB error:', err.message));
 
 const ProductSchema = new mongoose.Schema({
   name: String,
@@ -58,11 +61,11 @@ app.post('/seed', async (req, res) => {
       { name: 'Green Tea', price: 300, category: 'tea' },
       { name: 'Coffee Mug', price: 1200, category: 'merch' }
     ]);
-    res.json({ message: '✅ Seeded!', count: products.length });
+    res.json({ message: 'Seeded!', count: products.length });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-const PORT = 3006;
+const PORT = process.env.PORT || 3006;
 app.listen(PORT, () => console.log(`Product service on port ${PORT}`));

@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: notification-service
+  name: payment-service
   labels:
-    app: notification-service
+    app: payment-service
     tier: backend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: notification-service
+      app: payment-service
   template:
     metadata:
       labels:
-        app: notification-service
+        app: payment-service
         tier: backend
     spec:
       containers:
-      - name: notification-service
-        image: coffee-shop-notification-service:latest
+      - name: payment-service
+        image: coffee-shop-payment-service:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 3005
+        - containerPort: 3007
           name: http
         env:
         - name: MONGO_URI
           value: "mongodb://mongo-service:27017/coffeeshop"
         - name: PORT
-          value: "3005"
+          value: "3007"
         resources:
           requests:
             memory: "64Mi"
@@ -38,27 +38,27 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 3005
+            port: 3007
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
-            port: 3005
+            port: 3007
           initialDelaySeconds: 5
           periodSeconds: 5
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: notification-service
+  name: payment-service
   labels:
-    app: notification-service
+    app: payment-service
 spec:
   selector:
-    app: notification-service
+    app: payment-service
   ports:
-  - port: 3005
-    targetPort: 3005
+  - port: 3007
+    targetPort: 3007
     name: http
   type: ClusterIP

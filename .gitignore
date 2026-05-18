@@ -3,5 +3,12 @@ node_modules
 .DS_Store
 k8s/minikube-linux-amd64
 k8s/kubectl
+.terraform/
 terraform/.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+**/terraform.tfvars
+*.tfvars.local
+*.kubeconfig
 *.lock.hcl

@@ -10,9 +10,9 @@ resources:
   - order-deployment.yaml
   - notification-deployment.yaml
   - product-deployment.yaml
+  - payment-deployment.yaml
   - mongo-deployment.yaml
   - frontend-deployment.yaml
-  - secrets.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

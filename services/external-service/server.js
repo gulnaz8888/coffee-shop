@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const client = require('prom-client');
 
@@ -21,5 +22,5 @@ app.get('/photos', (req, res) => {
   res.json([{ url: 'https://via.placeholder.com/400', description: 'Coffee' }]);
 });
 
-const PORT = 3003;
-app.listen(PORT, () => console.log('External service running on port 3003'));
+const PORT = process.env.PORT || 3003;
+app.listen(PORT, () => console.log(`External service running on port ${PORT}`));

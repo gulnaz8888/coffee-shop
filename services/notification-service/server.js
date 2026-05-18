@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const client = require('prom-client');
@@ -11,8 +12,11 @@ app.get('/metrics', async (req, res) => {
   res.end(await client.register.metrics());
 });
 
-mongoose.connect('mongodb://mongo:27017/coffeeshop')
-  .then(() => console.log('Notification DB connected'));
+const mongoUri = process.env.MONGO_URI || 'mongodb://mongo:27017/coffeeshop';
+
+mongoose.connect(mongoUri)
+  .then(() => console.log('Notification DB connected'))
+  .catch((err) => console.error('DB error:', err.message));
 
 const NotifSchema = new mongoose.Schema({
   userId: String,
@@ -39,5 +43,5 @@ app.get('/notifications/:userId', async (req, res) => {
   res.json(notifs);
 });
 
-const PORT = 3005;
+const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => console.log(`Notification service on port ${PORT}`));

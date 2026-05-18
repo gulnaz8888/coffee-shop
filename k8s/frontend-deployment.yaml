@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
-  namespace: default
   labels:
     app: frontend
     tier: frontend
@@ -18,14 +17,12 @@ spec:
         tier: frontend
     spec:
       containers:
-      - name: nginx
-        image: nginx:alpine
+      - name: frontend
+        image: coffee-shop-frontend:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
           name: http
-        volumeMounts:
-        - name: nginx-config
-          mountPath: /etc/nginx/conf.d
         resources:
           requests:
             memory: "64Mi"
@@ -45,16 +42,11 @@ spec:
             port: 80
           initialDelaySeconds: 5
           periodSeconds: 5
-      volumes:
-      - name: nginx-config
-        configMap:
-          name: nginx-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend
-  namespace: default
   labels:
     app: frontend
 spec:
@@ -65,37 +57,3 @@ spec:
     targetPort: 80
     name: http
   type: LoadBalancer
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nginx-config
-  namespace: default
-data:
-  default.conf: |
-    server {
-        listen 80;
-        server_name localhost;
-        location /api/auth/ {
-            proxy_pass http://auth-service:3001/;
-        }
-        location /api/resource/ {
-            proxy_pass http://reservation-service:3002/;
-        }
-        location /api/unsplash/ {
-            proxy_pass http://external-service:3003/;
-        }
-        location /api/orders/ {
-            proxy_pass http://order-service:3004/;
-        }
-        location /api/notifications/ {
-            proxy_pass http://notification-service:3005/;
-        }
-        location /api/products/ {
-            proxy_pass http://product-service:3006/;
-        }
-        location / {
-            root /usr/share/nginx/html;
-            index index.html;
-        }
-    }
